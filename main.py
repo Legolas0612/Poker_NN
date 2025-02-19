@@ -11,11 +11,11 @@ class Card:
         self.value = value
 
     def __str__(self):
-        return f"{self.value} of {self.sign}"
+        return f"{self.value}{self.sign}"
 
 class Deck:
     def __init__(self):
-        self.signs = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+        self.signs = ['♥', '♦', '♣', '♠']
         self.values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
         self.cards = [Card(sign, value) for sign in self.signs for value in self.values]
         random.shuffle(self.cards)
