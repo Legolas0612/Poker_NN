@@ -93,7 +93,11 @@ def is_flush(cards):
 
 def is_straight(cards):
     values = sorted(set(get_card_value(card) for card in cards))
-    return len(values) == 5 and values[-1] - values[0] == 4
+    if len(values) == 5 and values[-1] - values[0] == 4:
+        return True
+    if values == [2, 3, 4, 5, 14]:
+        return True
+    return False
 
 def is_three_of_a_kind(cards):
     values = [card.value for card in cards]
