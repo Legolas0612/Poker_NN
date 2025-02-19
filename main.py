@@ -35,40 +35,42 @@ def evaluate_hand(cards):
     
     # Check for different hand types
     if is_royal_flush(cards):
-        return (10, cards)
+        return (10, [get_card_value(card) for card in cards])
     elif is_straight_flush(cards):
-        return (9, cards)
+        return (9, [get_card_value(card) for card in cards])
     elif is_four_of_a_kind(cards):
-        return (8, cards)
+        return (8, [get_card_value(card) for card in cards])
     elif is_full_house(cards):
-        return (7, cards)
+        return (7, [get_card_value(card) for card in cards])
     elif is_flush(cards):
-        return (6, cards)
+        return (6, [get_card_value(card) for card in cards])
     elif is_straight(cards):
-        return (5, cards)
+        return (5, [get_card_value(card) for card in cards])
     elif is_three_of_a_kind(cards):
-        return (4, cards)
+        return (4, [get_card_value(card) for card in cards])
     elif is_two_pair(cards):
-        return (3, cards)
+        return (3, [get_card_value(card) for card in cards])
     elif is_one_pair(cards):
-        return (2, cards)
+        return (2, [get_card_value(card) for card in cards])
     else:
-        return (1, cards[:5])  # High card
+        return (1, [get_card_value(card) for card in cards[:5]])  # High card
 
-def determine_winner(player_hand, community_cards):
+def determine_winner(players, community_cards):
     """Determine the winner based on the best hand."""
-    all_cards = player_hand + community_cards
     best_hand = None
     best_rank = (0, [])
+    winner = None
 
-    # Generate all possible 5-card combinations
-    for combination in itertools.combinations(all_cards, 5):
-        rank = evaluate_hand(list(combination))
-        if rank > best_rank:
-            best_rank = rank
-            best_hand = combination
+    for player in players:
+        all_cards = player.hand + community_cards
+        for combination in itertools.combinations(all_cards, 5):
+            rank = evaluate_hand(combination)
+            if rank > best_rank:
+                best_rank = rank
+                best_hand = combination
+                winner = player
 
-    return best_hand
+    return winner, best_hand
 
 # Helper functions to check hand types
 def is_royal_flush(cards):
@@ -108,38 +110,44 @@ def is_one_pair(cards):
 
 def main():
     deck = Deck()
-    player = Player("Player 1")
+    num_players = 4
+    players = [Player(f"Player {i+1}") for i in range(num_players)]
 
-    # Deal two cards to the player
-    player.hand = deck.deal(2)
-    print(f"{player.name}'s hand:")
-    for card in player.hand:
-        print(card)
+    # Deal two cards to each player
+    for player in players:
+        player.hand = deck.deal(2)
+        print(f"{player.name}'s hand:")
+        for card in player.hand:
+            print(card)
+        print()
 
     # Deal the flop (3 community cards)
     flop = deck.deal(3)
-    print("\nFlop:")
+    print("Flop:")
     for card in flop:
         print(card)
+    print()
 
     # Deal the turn (1 community card)
     turn = deck.deal(1)
-    print("\nTurn:")
+    print("Turn:")
     for card in turn:
         print(card)
+    print()
 
     # Deal the river (1 community card)
     river = deck.deal(1)
-    print("\nRiver:")
+    print("River:")
     for card in river:
         print(card)
+    print()
 
     # Combine all community cards
     community_cards = flop + turn + river
 
     # Determine the winner
-    winning_hand = determine_winner(player.hand, community_cards)
-    print(f"\nWinning hand:")
+    winner, winning_hand = determine_winner(players, community_cards)
+    print(f"{winner.name} wins with the hand:")
     for card in winning_hand:
         print(card)
 
