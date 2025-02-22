@@ -1,6 +1,20 @@
 import random
 import itertools
 
+class Table:
+    def __init__(self, deck):
+        self.deck = deck
+        self.community_cards = []
+
+    def turn_cards(self):
+        if self.community_cards.__len__() == 0:
+            self.community_cards.extend(self.deck.deal(3))
+        elif self.community_cards.__len__() == 3:
+            self.community_cards.extend(self.deck.deal(1))
+        elif self.community_cards.__len__() == 4:
+            self.community_cards.extend(self.deck.deal(1))
+        else: print("something went wrong with turn cards")
+
 class Player:
     def __init__(self, name):
         self.name = name
@@ -30,7 +44,7 @@ def get_card_value(card):
 
 def evaluate_hand(cards):
     """Evaluate the best hand from the given cards."""
-    # Sort cards by value
+    # Sort cards by value (begin with highes card)
     cards = sorted(cards, key=get_card_value, reverse=True)
     
     # Check for different hand types
@@ -55,11 +69,11 @@ def evaluate_hand(cards):
     else:
         return (1, [get_card_value(card) for card in cards[:5]])  # High card
 
-def determine_winner(players, community_cards):
+def determine_winners(players, community_cards):
     """Determine the winner based on the best hand."""
-    best_hand = None
+    best_hands = []
     best_rank = (0, [])
-    winner = None
+    winners = []
 
     for player in players:
         all_cards = player.hand + community_cards
@@ -67,10 +81,13 @@ def determine_winner(players, community_cards):
             rank = evaluate_hand(combination)
             if rank > best_rank:
                 best_rank = rank
-                best_hand = combination
-                winner = player
+                best_hands = [combination]
+                winners = [player]
+            elif rank == best_rank and player not in winners:
+                best_hands.append(combination)
+                winners.append(player)
 
-    return winner, best_hand
+    return winners, best_hands
 
 # Helper functions to check hand types
 def is_royal_flush(cards):
@@ -117,6 +134,9 @@ def main():
     num_players = 4
     players = [Player(f"Player {i+1}") for i in range(num_players)]
 
+    table = Table(deck)
+
+
     # Deal two cards to each player
     for player in players:
         player.hand = deck.deal(2)
@@ -125,35 +145,38 @@ def main():
             print(card)
         print()
 
-    # Deal the flop (3 community cards)
-    flop = deck.deal(3)
-    print("Flop:")
-    for card in flop:
+    #flop
+    print("flop")
+    table.turn_cards()
+    for card in table.community_cards:
         print(card)
     print()
 
-    # Deal the turn (1 community card)
-    turn = deck.deal(1)
-    print("Turn:")
-    for card in turn:
+    #turn
+    print("turn")
+    table.turn_cards()
+    for card in table.community_cards:
         print(card)
     print()
 
-    # Deal the river (1 community card)
-    river = deck.deal(1)
-    print("River:")
-    for card in river:
+    #river
+    print("river")
+    table.turn_cards()
+    for card in table.community_cards:
         print(card)
     print()
-
-    # Combine all community cards
-    community_cards = flop + turn + river
 
     # Determine the winner
-    winner, winning_hand = determine_winner(players, community_cards)
-    print(f"{winner.name} wins with the hand:")
-    for card in winning_hand:
-        print(card)
+    winners, winning_hands = determine_winners(players, table.community_cards)
+    if len(winners) == 1:
+        print("The winner is!")
+    else:
+        print(f"Draw detected! The {len(winners)} winners are:")
+    
+    for i in range(len(winners)):
+        print(f"{winners[i].name} with the hand:")
+        for card in winning_hands[i]:
+            print(card)
 
 if __name__ == "__main__":
     main()

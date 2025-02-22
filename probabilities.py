@@ -1,6 +1,9 @@
 from main import Card
 from main import get_card_value
 
+def probability_royal_flush(hand):
+    return 0
+
 def chen_formula(hand):
     value1 = get_card_value(hand[0])
     value2 = get_card_value(hand[1])
